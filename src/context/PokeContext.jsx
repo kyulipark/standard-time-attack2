@@ -1,46 +1,42 @@
-import { Children, createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import MOCK_DATA from "../mock";
+import { createGlobalStyle } from "styled-components";
 
+const PokemonContext = createContext();
 
-const PokeContext = createContext(); 
-
-export function usePokemon(){
-    return useContext(PokeContext);
+export function usePokemon() {
+  return useContext(PokemonContext);
 }
 
-export function PokemonProvider({Children}){
-    const [allPokemon, setAllPokemon] = useState(MOCK_DATA);
-    const [selectedPokemon, setSelectedPokemon] = useState();
+export function PokemonProvider({ children }) {
+  const [allPokemon, setAllPokemon] = useState(MOCK_DATA);
+  const [selectedPokemon, setSelectedPokemon] = useState([]);
 
-    //add
-    const addPokemon = (pokemon) =>{
-        
-        if (selectedPokemon.length > 6){
-            alert("6개의 포켓몬만 선택가능")
-            return;
-        }
-
-        if (selectedPokemon.some((p) => p.id === pokemon.id)){
-            alert("이미 선택된 포켓몬")
-            return;
-        }
-        setSelectedPokemon((prevSelected)=> [...prevSelected, pokemon])
+  const addPokemon = (pokemon) => {
+    //add로직
+    if (selectedPokemon.length >= 6) {
+      alert("최대 6개의 포켓몬만 선택할 수 있습니다.");
+      return;
     }
-
-    //remove
-    const reovePokemon = (pokemon) =>{
-        setSelectedPokemon((prevSelected)=> 
-            prevSelected.filter((p) => p.id !== pokemon.id))
+    if (selectedPokemon.some((p) => p.id === pokemon.id)) {
+      alert("이미 선택된 포켓몬입니다.");
+      return;
     }
+    setSelectedPokemon((prevSelected) => [...prevSelected, pokemon]);
+  };
 
-return(
-    <PokeContext.Provider
-    value={{allPokemon, selectedPokemon, addPokemon, reovePokemon}}>
-        {Children}
-    </PokeContext.Provider>
-)
+  const removePokemon = (pokemon) => {
+    //remove로직
+    setSelectedPokemon((prevSelected) =>
+      prevSelected.filter((p) => p.id !== pokemon.id)
+    );
+  };
 
-
+  return (
+    <PokemonContext.Provider
+      value={{ selectedPokemon, allPokemon, addPokemon, removePokemon }}
+    >
+      {children}
+    </PokemonContext.Provider>
+  );
 }
-
-
